@@ -18,15 +18,30 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-
+from recipe import serializers
 from core.models import (
     Recipe,
     Tag,
     Ingredient,
 )
-from recipe import serializers
 
 
+@extend_schema_view(
+    list=extend_schema(
+        parameters=[
+            OpenApiParameter(
+                'tags',
+                OpenApiTypes.STR,
+                description='Comma seperated list of tag IDs to filter',
+            ),
+            OpenApiParameter(
+                'ingredients',
+                OpenApiTypes.STR,
+                description='Comma seperated list of ingredient IDs to filter'
+            ),
+        ]
+    )
+)
 class RecipeViewSet(viewsets.ModelViewSet):
     """ view for manage recipe APIs. """
     serializer_class = serializers.RecipeDetailSerializer
@@ -41,7 +56,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """ retrieve recipes for authenicated user """
         # return self.queryset.filter(user=self.request.user).order_by('-id')
-if es
+
         tags = self.request.query_params.get('tags')
         ingredients = self.request.query_params.get('ingredients')
         queryset = self.queryset
@@ -56,7 +71,6 @@ if es
         return queryset.filter(
             user=self.request.user
         ).order_by('-id').distinct()
-
 
     def get_serializer_class(self):
         """ Return the serializer class for requests """
